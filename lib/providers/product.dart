@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
 class Product with ChangeNotifier {
+  final String id;
+  final String title;
+  final String description;
+  final double price;
+  final String imageUrl;
+  bool isFavorite;
+
   Product({
     required this.id,
     required this.title,
@@ -9,12 +16,6 @@ class Product with ChangeNotifier {
     required this.imageUrl,
     this.isFavorite = false,
   });
-  final String id;
-  final String title;
-  final String description;
-  final double price;
-  final String imageUrl;
-  bool isFavorite;
 
   void toggleFavoriteStatus() {
     isFavorite = !isFavorite;
