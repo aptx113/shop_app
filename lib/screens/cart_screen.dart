@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/cart.dart';
+import '../providers/cart.dart' show Cart;
+import '../widgets/cart_item.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -10,7 +11,8 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cart = Provider.of<Cart>(context);
+    final cartData = Provider.of<Cart>(context);
+    final cartItems = cartData.items.values.toList();
     return Scaffold(
       appBar: AppBar(title: const Text('Cart')),
       body: Column(
@@ -26,10 +28,10 @@ class CartScreen extends StatelessWidget {
                       'Total',
                       style: TextStyle(fontSize: 20),
                     ),
-                   const Spacer(),
+                    const Spacer(),
                     Chip(
                       label: Text(
-                        '\$${cart.totalAmount}',
+                        '\$${cartData.totalAmount}',
                         style: TextStyle(
                             color: Theme.of(context)
                                 .primaryTextTheme
@@ -44,7 +46,17 @@ class CartScreen extends StatelessWidget {
                     )
                   ]),
             ),
-          )
+          ),
+          const SizedBox(height: 19),
+          Expanded(
+              child: ListView.builder(
+            itemCount: cartData.items.length,
+            itemBuilder: (context, i) => CartItem(
+                id: cartItems[i].id,
+                title: cartItems[i].title,
+                quantity: cartItems[i].quantity,
+                price: cartItems[i].price),
+          ))
         ],
       ),
     );
