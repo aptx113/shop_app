@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 
 class Cart with ChangeNotifier {
-  Map<String, CartItem> _items = {};
+  final Map<String, CartItem> _items = {};
 
   Map<String, CartItem> get items => {..._items};
+
+  double get totalAmount {
+    var total = 0.0;
+    _items.forEach(((key, cartItem) => total += cartItem.price * cartItem.quantity));
+    return total;
+  }
 
   void addItem(String productID, double price, String title) {
     if (_items.containsKey(productID)) {
