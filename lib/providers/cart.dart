@@ -37,6 +37,11 @@ class Cart with ChangeNotifier {
     _items.remove(productID);
     notifyListeners();
   }
+
+  void clear() {
+    _items.clear();
+    notifyListeners();
+  }
 }
 
 class CartItem {
@@ -46,8 +51,9 @@ class CartItem {
     required this.quantity,
     required this.price,
   });
+
   final String id;
-  final String title;
-  final int quantity;
   final double price;
+  final int quantity;
+  final String title;
 }
