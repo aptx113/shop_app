@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import './product.dart';
 
 class ProductsProvider with ChangeNotifier {
@@ -50,15 +53,27 @@ class ProductsProvider with ChangeNotifier {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
-  void addProduct(Product product) {
-    final newProduct = Product(
-        title: product.title,
-        description: product.description,
-        price: product.price,
-        imageUrl: product.imageUrl,
-        id: DateTime.now().toString());
-    _items.add(newProduct);
-    notifyListeners();
+  Future<void> addProduct(Product product) {
+    final url = Uri.parse(
+        'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/products.json');
+    final body = {
+      'title': product.title,
+      'description': product.description,
+      'imageUrl': product.imageUrl,
+      'price': product.price,
+      'isFavorite': product.isFavorite
+    };
+    return http.post(url, body: json.encode(body)).then((response) {
+      final responseId = json.decode(response.body)['name'];
+      final newProduct = Product(
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          imageUrl: product.imageUrl,
+          id: responseId);
+      _items.add(newProduct);
+      notifyListeners();
+    });
   }
 
   void updateProduct(String id, Product newProduct) {
