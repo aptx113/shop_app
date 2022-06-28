@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import './product.dart';
 
+const _baseUrl =
+    'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/products.json';
+
 class ProductsProvider with ChangeNotifier {
-  final List<Product> _items = [
+  List<Product> _items = [
     Product(
       id: 'p1',
       title: 'Red Shirt',
@@ -53,9 +56,30 @@ class ProductsProvider with ChangeNotifier {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
-  Future<void> addProduct(Product product) {
-    final url = Uri.parse(
-        'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/products.json');
+  Future<void> fetchAndSetProducts() async {
+    final url = Uri.parse(_baseUrl);
+    try {
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final List<Product> loadedProducts = [];
+      extractedData.forEach((prodId, productData) {
+        loadedProducts.add(Product(
+            id: prodId,
+            title: productData['title'],
+            description: productData['description'],
+            price: productData['price'],
+            imageUrl: productData['imageUrl'],
+            isFavorite: productData['isFavorite']));
+      });
+      _items = loadedProducts;
+      notifyListeners();
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<void> addProduct(Product product) async {
+    final url = Uri.parse(_baseUrl);
     final body = {
       'title': product.title,
       'description': product.description,
@@ -63,7 +87,9 @@ class ProductsProvider with ChangeNotifier {
       'price': product.price,
       'isFavorite': product.isFavorite
     };
-    return http.post(url, body: json.encode(body)).then((response) {
+
+    try {
+      final response = await http.post(url, body: json.encode(body));
       final responseId = json.decode(response.body)['name'];
       final newProduct = Product(
           title: product.title,
@@ -73,7 +99,11 @@ class ProductsProvider with ChangeNotifier {
           id: responseId);
       _items.add(newProduct);
       notifyListeners();
-    });
+      notifyListeners();
+    } catch (error) {
+      print(error);
+      rethrow;
+    }
   }
 
   void updateProduct(String id, Product newProduct) {

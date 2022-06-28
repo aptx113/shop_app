@@ -19,12 +19,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _imageUrlController = TextEditingController();
   final _imageUrlFocusNode = FocusNode();
   final _form = GlobalKey<FormState>();
-  var _editedProduct = Product(
-      id: '',
-      title: '',
-      description: '',
-      price: double.parse(''),
-      imageUrl: '');
+  var _editedProduct =
+      Product(id: '', title: '', description: '', price: 0.0, imageUrl: '');
 
   var _isInit = true;
   var _isLoading = false;
@@ -72,7 +68,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  void _saveForm(ProductsProvider products) {
+  Future<void> _saveForm(ProductsProvider products) async {
     final isValid = _form.currentState?.validate();
     if (isValid != null && !isValid) {
       return;
@@ -88,12 +84,27 @@ class _EditProductScreenState extends State<EditProductScreen> {
       });
       Navigator.of(context).pop();
     } else {
-      products.addProduct(_editedProduct).then((_) {
+      try {
+        await products.addProduct(_editedProduct);
+      } catch (error) {
+        await showDialog<Null>(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: const Text('An error occurred!'),
+                  content: const Text('Something went wrong.'),
+                  actions: [
+                    TextButton(
+                      child: const Text('Okay'),
+                      onPressed: () => Navigator.of(context).pop(),
+                    )
+                  ],
+                ));
+      } finally {
         setState(() {
           _isLoading = false;
         });
         Navigator.of(context).pop();
-      });
+      }
     }
   }
 
