@@ -22,7 +22,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _isInit = true;
   var _isLoading = false;
 
-  late final _products;
+  late final ProductsProvider _products;
 
   @override
   void didChangeDependencies() {
