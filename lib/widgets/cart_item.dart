@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../providers/cart.dart';
 
-class CartItem extends StatelessWidget {
-  const CartItem({
+class CartItemWidget extends StatelessWidget {
+  const CartItemWidget({
     Key? key,
     required this.id,
     required this.productID,

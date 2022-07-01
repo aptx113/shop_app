@@ -100,7 +100,6 @@ class ProductsProvider with ChangeNotifier {
           id: responseId);
       _items.add(newProduct);
       notifyListeners();
-      notifyListeners();
     } catch (error) {
       print(error);
       rethrow;

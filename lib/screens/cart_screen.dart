@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/cart.dart' show Cart;
+import '../providers/cart.dart';
 import '../providers/orders.dart';
 import '../widgets/cart_item.dart';
 
@@ -41,14 +41,7 @@ class CartScreen extends StatelessWidget {
                       ),
                       backgroundColor: Theme.of(context).primaryColor,
                     ),
-                    TextButton(
-                      child: const Text('ORDER NOW'),
-                      onPressed: () {
-                        Provider.of<Orders>(context, listen: false)
-                            .addOrder(cartItems, cartData.totalAmount);
-                        cartData.clear();
-                      },
-                    )
+                    OrderButton(cartData: cartData, cartItems: cartItems)
                   ]),
             ),
           ),
@@ -56,7 +49,7 @@ class CartScreen extends StatelessWidget {
           Expanded(
               child: ListView.builder(
             itemCount: cartData.items.length,
-            itemBuilder: (context, i) => CartItem(
+            itemBuilder: (context, i) => CartItemWidget(
                 id: cartItems[i].id,
                 productID: cartData.items.keys.toList()[i],
                 title: cartItems[i].title,
@@ -65,6 +58,43 @@ class CartScreen extends StatelessWidget {
           ))
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key? key,
+    required this.cartData,
+    required this.cartItems,
+  }) : super(key: key);
+
+  final Cart cartData;
+  final List<CartItem> cartItems;
+
+  @override
+  State<OrderButton> createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      child: _isLoading ? const CircularProgressIndicator() : const Text('ORDER NOW'),
+      onPressed: widget.cartData.totalAmount <= 0 || _isLoading
+          ? null
+          : () async {
+              setState(() {
+                _isLoading = true;
+              });
+              await Provider.of<Orders>(context, listen: false)
+                  .addOrder(widget.cartItems, widget.cartData.totalAmount);
+              setState(() {
+                _isLoading = false;
+              });
+              widget.cartData.clear();
+            },
     );
   }
 }
