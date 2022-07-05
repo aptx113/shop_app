@@ -6,7 +6,7 @@ import 'package:shop_app/models/http_exception.dart';
 import './product.dart';
 
 const _baseUrl =
-    'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/products.json';
+    'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/products.json?auth=';
 
 class ProductsProvider with ChangeNotifier {
   List<Product> _items = [
@@ -44,6 +44,12 @@ class ProductsProvider with ChangeNotifier {
     ),
   ];
   // var _showFavoritesOnly = false;
+  String authToken = '';
+
+  void update(String token, List<Product> products) {
+    authToken = token;
+    _items = products;
+  }
 
   List<Product> get items {
     return [..._items];
@@ -58,7 +64,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> fetchAndSetProducts() async {
-    final url = Uri.parse(_baseUrl);
+    final url = Uri.parse(_baseUrl + authToken);
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
