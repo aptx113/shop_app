@@ -6,15 +6,21 @@ import 'package:shop_app/providers/cart.dart';
 import 'package:http/http.dart' as http;
 
 const _baseUrl =
-    'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/orders.json';
+    'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/orders.json?auth=';
 
 class Orders with ChangeNotifier {
   List<Order> _orders = [];
+  String authToken = '';
 
   List<Order> get orders => [..._orders];
 
+  void update(String token, List<Order> orders) {
+    authToken = token;
+    _orders = orders;
+  }
+
   Future<void> fetchAndSetOrders() async {
-    final url = Uri.parse(_baseUrl);
+    final url = Uri.parse(_baseUrl + authToken);
     final response = await http.get(url);
     List<Order> loadedOrders = [];
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -39,7 +45,7 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    final url = Uri.parse(_baseUrl);
+    final url = Uri.parse(_baseUrl + authToken);
     final timestamp = DateTime.now();
     final body = {
       'amount': total,

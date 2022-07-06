@@ -86,7 +86,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    final url = Uri.parse(_baseUrl);
+    final url = Uri.parse(_baseUrl + authToken);
     final body = {
       'title': product.title,
       'description': product.description,
@@ -116,7 +116,8 @@ class ProductsProvider with ChangeNotifier {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
     if (prodIndex >= 0) {
       final url = Uri.parse(
-          'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/products/$id.json');
+          'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/products/$id.json?auth=' +
+              authToken);
       final body = {
         'title': newProduct.title,
         'description': newProduct.description,
@@ -132,7 +133,8 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/products/$id.json');
+        'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/products/$id.json?auth=' +
+            authToken);
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     Product? existingProduct = _items[existingProductIndex];
     _items.removeAt(existingProductIndex);
