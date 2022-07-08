@@ -33,7 +33,8 @@ class MyApp extends StatelessWidget {
             update: ((context, auth, previousProducts) {
               if (previousProducts != null) {
                 return previousProducts
-                  ..update(auth.token ?? '', previousProducts.items);
+                  ..update(
+                      auth.token ?? '', previousProducts.items, auth.userId);
               } else {
                 return ProductsProvider();
               }

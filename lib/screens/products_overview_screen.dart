@@ -28,12 +28,16 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   void didChangeDependencies() {
     if (_isInit) {
       _products = Provider.of<ProductsProvider>(context);
+      if (mounted) {
       setState(() {
-        _isLoading = true;
-      });
+          _isLoading = true;
+        });
+      }
       _products.fetchAndSetProducts().then((_) {
+        if (mounted) {
         setState(() {});
-        _isLoading = false;
+          _isLoading = false;
+        }
       });
     }
     _isInit = false;

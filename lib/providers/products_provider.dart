@@ -45,10 +45,12 @@ class ProductsProvider with ChangeNotifier {
   ];
   // var _showFavoritesOnly = false;
   String authToken = '';
+  String userId = '';
 
-  void update(String token, List<Product> products) {
+  void update(String token, List<Product> products, String id) {
     authToken = token;
     _items = products;
+    userId = id;
   }
 
   List<Product> get items {
@@ -63,10 +65,18 @@ class ProductsProvider with ChangeNotifier {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
-  Future<void> fetchAndSetProducts() async {
-    final url = Uri.parse(_baseUrl + authToken);
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? '&orderBy="creatorId"&equalTo="$userId"' : '';
+    final url = Uri.parse(
+        'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/products.json?auth=$authToken$filterString');
+    final favoritesUrl = Uri.parse(
+        'https://my-flutter-demo-f90d8-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=' +
+            authToken);
     try {
       final response = await http.get(url);
+      final favoriteResponse = await http.get(favoritesUrl);
+      final favoriteData = json.decode(favoriteResponse.body);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
       extractedData.forEach((prodId, productData) {
@@ -76,7 +86,8 @@ class ProductsProvider with ChangeNotifier {
             description: productData['description'],
             price: productData['price'],
             imageUrl: productData['imageUrl'],
-            isFavorite: productData['isFavorite']));
+            isFavorite:
+                favoriteData == null ? false : favoriteData[prodId] ?? false));
       });
       _items = loadedProducts;
       notifyListeners();
@@ -92,7 +103,7 @@ class ProductsProvider with ChangeNotifier {
       'description': product.description,
       'imageUrl': product.imageUrl,
       'price': product.price,
-      'isFavorite': product.isFavorite
+      'creatorId': userId
     };
 
     try {
