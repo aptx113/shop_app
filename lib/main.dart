@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shop_app/providers/auth.dart';
 import 'package:shop_app/screens/auth_screen.dart';
 import 'package:shop_app/screens/edit_product_screen.dart';
+import 'package:shop_app/screens/splash_screen.dart';
 
 import './providers/cart.dart';
 import './providers/orders.dart';
@@ -33,8 +34,8 @@ class MyApp extends StatelessWidget {
             update: ((context, auth, previousProducts) {
               if (previousProducts != null) {
                 return previousProducts
-                  ..update(
-                      auth.token ?? '', previousProducts.items, auth.userId);
+                  ..update(auth.token ?? '', previousProducts.items,
+                      auth.userId ?? '');
               } else {
                 return ProductsProvider();
               }
@@ -45,7 +46,8 @@ class MyApp extends StatelessWidget {
             update: (context, auth, previousOrders) {
               if (previousOrders != null) {
                 return previousOrders
-                  ..update(auth.token ?? '', previousOrders.orders);
+                  ..update(auth.token ?? '', previousOrders.orders,
+                      auth.userId ?? '');
               } else {
                 return Orders();
               }
@@ -53,16 +55,22 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<Auth>(
         builder: (context, authData, _) => MaterialApp(
-          title: 'Flutter Demo',
+          title: 'MyShop',
           theme: theme.copyWith(
               colorScheme:
                   theme.colorScheme.copyWith(secondary: Colors.deepOrange)),
           home: authData.isAuth
               ? const ProductsOverviewScreen()
-              : const AuthScreen(),
+              : FutureBuilder(
+                  future: authData.tryAutoLogin(),
+                  builder: (context, authResultSnapshot) =>
+                      authResultSnapshot.connectionState ==
+                              ConnectionState.waiting
+                          ? const SplashScreen()
+                          : const AuthScreen()),
           routes: {
-            ProductsOverviewScreen.routeName: (context) =>
-                const ProductsOverviewScreen(),
+            ProductsOverviewScreen.routeName: ((context) =>
+                const ProductsOverviewScreen()),
             ProductDetailScreen.routeName: (context) =>
                 const ProductDetailScreen(),
             CartScreen.routeName: (context) => const CartScreen(),
