@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/helpers/custom_route.dart';
 import 'package:shop_app/providers/auth.dart';
 import 'package:shop_app/screens/auth_screen.dart';
 import 'package:shop_app/screens/edit_product_screen.dart';
@@ -21,8 +22,13 @@ void main() {
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
-  final ThemeData theme =
-      ThemeData(primarySwatch: Colors.purple, fontFamily: 'Lato');
+  final ThemeData theme = ThemeData(
+      primarySwatch: Colors.purple,
+      fontFamily: 'Lato',
+      pageTransitionsTheme: PageTransitionsTheme(builders: {
+        TargetPlatform.android: CustomPageTransitionBuilder(),
+        TargetPlatform.iOS: CustomPageTransitionBuilder(),
+      }));
 
   @override
   Widget build(BuildContext context) {
