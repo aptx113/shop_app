@@ -89,12 +89,37 @@ class AuthCard extends StatefulWidget {
   State<StatefulWidget> createState() => _AuthCardState();
 }
 
-class _AuthCardState extends State<AuthCard> {
+class _AuthCardState extends State<AuthCard>
+    with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.login;
   final Map<String, String> _authData = {'email': '', 'password': ''};
   var _isLoading = false;
   final _passwordController = TextEditingController();
+  var containerHeight = 260.0;
+  late AnimationController _controller;
+  late Animation<Size> _heightAnimation;
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
+    _heightAnimation = Tween<Size>(
+            begin: Size(double.infinity, containerHeight),
+            end: const Size(double.infinity, 320.0))
+        .animate(
+            CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn));
+    _heightAnimation.addListener(() {
+      setState(() {});
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -159,10 +184,12 @@ class _AuthCardState extends State<AuthCard> {
       setState(() {
         _authMode = AuthMode.signup;
       });
+      _controller.forward();
     } else {
       setState(() {
         _authMode = AuthMode.login;
       });
+      _controller.reverse();
     }
   }
 
@@ -173,9 +200,9 @@ class _AuthCardState extends State<AuthCard> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       elevation: 8.0,
       child: Container(
-        height: _authMode == AuthMode.signup ? 320 : 260,
-        constraints:
-            BoxConstraints(minHeight: _authMode == AuthMode.signup ? 320 : 260),
+        // height: _authMode == AuthMode.signup ? 320 : 260,
+        height: _heightAnimation.value.height,
+        constraints: BoxConstraints(minHeight: _heightAnimation.value.height),
         width: deviceSize.width * 0.75,
         padding: const EdgeInsets.all(16.0),
         child: Form(
