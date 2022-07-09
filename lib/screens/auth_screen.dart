@@ -199,12 +199,16 @@ class _AuthCardState extends State<AuthCard>
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       elevation: 8.0,
-      child: Container(
-        // height: _authMode == AuthMode.signup ? 320 : 260,
-        height: _heightAnimation.value.height,
-        constraints: BoxConstraints(minHeight: _heightAnimation.value.height),
-        width: deviceSize.width * 0.75,
-        padding: const EdgeInsets.all(16.0),
+      child: AnimatedBuilder(
+        builder: (context, ch) => Container(
+          // height: _authMode == AuthMode.signup ? 320 : 260,
+          height: _heightAnimation.value.height,
+          constraints: BoxConstraints(minHeight: _heightAnimation.value.height),
+          width: deviceSize.width * 0.75,
+          padding: const EdgeInsets.all(16.0),
+          child: ch,
+        ),
+        animation: _heightAnimation,
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
